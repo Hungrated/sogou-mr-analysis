@@ -1,4 +1,4 @@
-package com.zjuhungrated.mranalysis;
+package com.zjuhungrated.mranalysis.utils;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -10,7 +10,7 @@ import java.io.IOException;
 /**
  * Sogou日志数据分析辅助工具类
  */
-final class SogouAnalysisHelper {
+public final class SogouAnalysisHelper {
     private static final String MY_JOB_NAME = "Sogou Analysis";
     private static final String MY_JOB_ROOT = "hdfs://localhost:9000";
     private static final String INPUT_PATH_STRING = String.valueOf(MY_JOB_ROOT
@@ -38,7 +38,7 @@ final class SogouAnalysisHelper {
      *
      * @return instance 单例模式的对象
      */
-    static SogouAnalysisHelper getInstance() {
+    public static SogouAnalysisHelper getInstance() {
         if (instance == null) {
             instance = new SogouAnalysisHelper();
         }
@@ -51,7 +51,7 @@ final class SogouAnalysisHelper {
      *
      * @return configuration 系统配置信息
      */
-    Configuration getConfiguration() {
+    public Configuration getConfiguration() {
         if (configuration == null) {
             configuration = new Configuration();
         }
@@ -65,7 +65,7 @@ final class SogouAnalysisHelper {
      * @return fs 分布式文件系统对象
      */
 
-    FileSystem getHdfs() {
+    public FileSystem getHdfs() {
         if (fileSystem != null) {
             return fileSystem;
         }
@@ -84,7 +84,7 @@ final class SogouAnalysisHelper {
      *
      * @return MY_JOB_NAME 任务名称
      */
-    String getJobName() {
+    public String getJobName() {
         return MY_JOB_NAME;
     }
 
@@ -94,7 +94,7 @@ final class SogouAnalysisHelper {
      *
      * @return INPUT_PATH 输入文件路径
      */
-    Path getInputPath() {
+    public Path getInputPath() {
         if (INPUT_PATH == null) {
             INPUT_PATH = new Path(INPUT_PATH_STRING);
         }
@@ -107,7 +107,7 @@ final class SogouAnalysisHelper {
      *
      * @return OUTPUT_PATH 输出文件路径
      */
-    Path getOutputPath() {
+    public Path getOutputPath() {
         if (OUTPUT_PATH == null) {
             OUTPUT_PATH = new Path(OUTPUT_PATH_STRING);
         }

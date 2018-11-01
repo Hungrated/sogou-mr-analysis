@@ -1,9 +1,11 @@
 package com.zjuhungrated.mranalysis;
 
+import com.zjuhungrated.mranalysis.utils.SogouAnalysisHelper;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -32,16 +34,17 @@ public class SogouAnalysis {
 
         // 指定本次MR的Mapper Combiner和Reducer
         job.setMapperClass(LineParserMapper.class);
-        job.setCombinerClass(IntSumReducer.class);
-        job.setReducerClass(IntSumReducer.class);
+        job.setCombinerClass(IntSumSortReducer.class);
+        job.setReducerClass(IntSumSortReducer.class);
+        job.setSortComparatorClass(LongWritableDecreasingComparator.class);
 
         // 指定本次MR任务Map阶段的输出K V类型
         job.setMapOutputKeyClass(Text.class);
-        job.setMapOutputValueClass(IntWritable.class);
+        job.setMapOutputValueClass(LongWritable.class);
 
         // 指定本次MR任务最终输出K V类型
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(IntWritable.class);
+        job.setOutputValueClass(LongWritable.class);
 
         Path in = helper.getInputPath();
         Path out = helper.getOutputPath();
@@ -64,7 +67,7 @@ public class SogouAnalysis {
      * 对文档进行Map操作类
      */
 
-    public static class LineParserMapper extends Mapper<Object, Text, Text, IntWritable> {
+    public static class LineParserMapper extends Mapper<Object, Text, Text, LongWritable> {
 
         /**
          * map
@@ -80,20 +83,19 @@ public class SogouAnalysis {
         @Override
         protected void map(Object key, Text value, Context context)
                 throws IOException, InterruptedException {
-            String[] words = value.toString().split(" ");
-            for (String word : words) {
-                context.write(new Text(word), new IntWritable(1));
-            }
+            String[] words = value.toString().split("\t");
+            String keyWord = words[2] == null ? "" : words[2].trim();
+            context.write(new Text(keyWord), new LongWritable(1));
         }
     }
 
     /**
-     * IntSumReducer
+     * IntSumSortReducer
      * <p>
      * 对Map结果进行Reduce操作类
      */
 
-    public static class IntSumReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
+    public static class IntSumSortReducer extends Reducer<Text, LongWritable, Text, LongWritable> {
 
         /**
          * reduce
@@ -107,13 +109,24 @@ public class SogouAnalysis {
          * @throws InterruptedException 当被中断时抛出该异常
          */
         @Override
-        protected void reduce(Text key, Iterable<IntWritable> values, Context context)
+        protected void reduce(Text key, Iterable<LongWritable> values, Context context)
                 throws IOException, InterruptedException {
             int count = 0;
-            for (IntWritable value : values) {
+            for (LongWritable value : values) {
                 count += value.get();
             }
-            context.write(key, new IntWritable(count));
+            context.write(key, new LongWritable(count));
+        }
+    }
+
+    public static class LongWritableDecreasingComparator extends
+            LongWritable.Comparator {
+        public int compare(WritableComparable a, WritableComparable b) {
+            return -super.compare(a, b);
+        }
+
+        public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
+            return -super.compare(b1, s1, l1, b2, s2, l2);
         }
     }
 
