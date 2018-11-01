@@ -11,18 +11,12 @@ import java.io.IOException;
  * Sogou日志数据分析辅助工具类
  */
 public final class SogouAnalysisHelper {
-    private static final String MY_JOB_NAME = "Sogou Analysis";
-    private static final String MY_JOB_ROOT = "hdfs://localhost:9000";
-    private static final String INPUT_PATH_STRING = String.valueOf(MY_JOB_ROOT
-            + "/sogouanalysis/input/sogou.test.utf8");
-    private static final String OUTPUT_PATH_STRING = String.valueOf(MY_JOB_ROOT
-            + "/sogouanalysis/output/");
+
     private static SogouAnalysisHelper instance = null;
     private static FileSystem fileSystem = null;
     private static Configuration configuration = null;
+
     private static Logger logger = Logger.getLogger("this.class");
-    private static Path INPUT_PATH = null;
-    private static Path OUTPUT_PATH = null;
 
     /**
      * 私有构造方法
@@ -79,40 +73,40 @@ public final class SogouAnalysisHelper {
     }
 
     /**
-     * 返回任务名称
+     * 返回文件路径
      * <p>
      *
-     * @return MY_JOB_NAME 任务名称
+     * @return path 文件路径对象
      */
-    public String getJobName() {
-        return MY_JOB_NAME;
+    public Path getPath(String path) {
+        return new Path(path);
     }
 
-    /**
-     * 返回输入文件路径
-     * <p>
-     *
-     * @return INPUT_PATH 输入文件路径
-     */
-    public Path getInputPath() {
-        if (INPUT_PATH == null) {
-            INPUT_PATH = new Path(INPUT_PATH_STRING);
-        }
-        return INPUT_PATH;
-    }
-
-    /**
-     * 返回输出文件路径
-     * <p>
-     *
-     * @return OUTPUT_PATH 输出文件路径
-     */
-    public Path getOutputPath() {
-        if (OUTPUT_PATH == null) {
-            OUTPUT_PATH = new Path(OUTPUT_PATH_STRING);
-        }
-        return OUTPUT_PATH;
-    }
+//    /**
+//     * 返回输入文件路径
+//     * <p>
+//     *
+//     * @return INPUT_PATH 输入文件路径
+//     */
+//    public Path getInputPath() {
+//        if (INPUT_PATH == null) {
+//            INPUT_PATH = new Path(INPUT_PATH_STRING);
+//        }
+//        return INPUT_PATH;
+//    }
+//
+//    /**
+//     * 返回输出文件路径
+//     * <p>
+//     *
+//     * @return OUTPUT_PATH 输出文件路径
+//     */
+//    public Path getOutputPath() {
+//        if (OUTPUT_PATH == null) {
+//            OUTPUT_PATH = new Path(OUTPUT_PATH_STRING);
+//        }
+//        return OUTPUT_PATH;
+//    }
 
 
 //    public static void mkdir(String path) {
