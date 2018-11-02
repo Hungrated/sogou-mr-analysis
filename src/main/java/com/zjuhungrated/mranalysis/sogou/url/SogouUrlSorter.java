@@ -1,7 +1,6 @@
-package com.zjuhungrated.mranalysis;
+package com.zjuhungrated.mranalysis.sogou.url;
 
-import com.zjuhungrated.mranalysis.utils.SogouAnalysisHelper;
-import org.apache.hadoop.fs.FileSystem;
+import com.zjuhungrated.mranalysis.common.SogouAnalysisHelper;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.LongWritable.Comparator;
@@ -16,12 +15,13 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import java.io.IOException;
 
 /**
- * Sogou日志数据分析MapReduce排序程序类
+ * Sogou搜索日志URL分析MapReduce排序程序类
  */
 
-public class SogouAnalysisSorter {
+public class SogouUrlSorter {
 
-    private static final String MY_JOB_NAME = "Sogou Analysis Sorter";
+    private static final String MY_JOB_NAME = "Sogou Url Sorter";
+    private static final String EXPORT_PATH = "out/result2";
 
     /**
      * 运行本次MapReduce任务
@@ -34,15 +34,14 @@ public class SogouAnalysisSorter {
     @SuppressWarnings("deprecation")
     public static void run(String inputPath, String outputPath) throws Exception {
 
+        // helper封装基本操作
         SogouAnalysisHelper helper = SogouAnalysisHelper.getInstance();
-
-        FileSystem fs = helper.getHdfs();
 
         // Job封装本次MapReduce相关信息
         Job job = new Job(helper.getConfiguration(), MY_JOB_NAME);
 
         // 指定本次MR任务jar包运行主类
-        job.setJarByClass(SogouAnalysisSorter.class);
+        job.setJarByClass(SogouUrlSorter.class);
 
         // 指定本次MR的Mapper Combiner和Reducer
         job.setMapperClass(SortMapper.class);
@@ -66,11 +65,17 @@ public class SogouAnalysisSorter {
         job.setSortComparatorClass(MyComparator.class);
 
         // 删除上次运行结果（若有） 以保证本次结果正常输出
-        if (fs.exists(out)) {
-            fs.delete(out, true);
+        helper.deleteFileIfExists(outputPath);
+
+        if (job.waitForCompletion(false)) {
+            System.out.println("Sort complete, now get result");
+            helper.getFileFromHdfs(outputPath, "part-r-00000", EXPORT_PATH);
+            helper.printFile(outputPath, "part-r-00000", 10);
+            System.exit(0);
+        } else {
+            System.exit(1);
         }
 
-        System.exit(job.waitForCompletion(true) ? 0 : 1);
     }
 
     /**

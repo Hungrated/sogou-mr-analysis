@@ -1,19 +1,19 @@
-package com.zjuhungrated.mranalysis;
+package com.zjuhungrated.mranalysis.sogou.url;
 
 /**
- * Sogou日志数据分析MapReduce主程序类
+ * Sogou搜索日志URL分析MapReduce主程序类
  */
-public class SogouAnalysis {
+public class SogouUrlAnalyser {
 
     private static final String MY_JOB_ROOT = "hdfs://localhost:9000";
     private static final String INPUT_PATH = String.valueOf(MY_JOB_ROOT
-            + "/sogouanalysis/input/sogou.test.utf8");
+            + "/sogouanalysis/input/sogou.full.utf8");
     private static final String OUTPUT_PATH = String.valueOf(MY_JOB_ROOT
-            + "/sogouanalysis/output/");
+            + "/sogouanalysis/output2/");
 
 
     public static void main(String[] args) throws Exception {
-        SogouAnalysisCounter.run(INPUT_PATH, OUTPUT_PATH);
+        SogouUrlCounter.run(INPUT_PATH, OUTPUT_PATH);
     }
 
 }

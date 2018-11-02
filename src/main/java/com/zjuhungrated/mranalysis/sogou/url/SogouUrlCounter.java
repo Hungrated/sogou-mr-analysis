@@ -1,7 +1,6 @@
-package com.zjuhungrated.mranalysis;
+package com.zjuhungrated.mranalysis.sogou.url;
 
-import com.zjuhungrated.mranalysis.utils.SogouAnalysisHelper;
-import org.apache.hadoop.fs.FileSystem;
+import com.zjuhungrated.mranalysis.common.SogouAnalysisHelper;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -14,21 +13,22 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import java.io.IOException;
 
 /**
- * Sogou日志数据分析MapReduce计数程序类
+ * Sogou搜索日志URL分析MapReduce计数程序类
  */
 
-public class SogouAnalysisCounter {
+public class SogouUrlCounter {
 
-    private static final String MY_JOB_NAME = "Sogou Analysis Sorter";
+    private static final String MY_JOB_NAME = "Sogou Url Counter";
     private static final String MY_JOB_ROOT = "hdfs://localhost:9000";
     private static final String TEMP_PATH = String.valueOf(MY_JOB_ROOT
-            + "/sogouanalysis/temp/");
+            + "/sogouanalysis/temp2/");
     private static final String TEMP_FILE_PATH = String.valueOf(TEMP_PATH
             + "part-r-00000");
 
     /**
      * 运行本次MapReduce任务
      * <p>
+     *
      * @param inputPath  输入文件路径
      * @param outputPath 输出文件路径
      * @throws Exception 当出现异常时抛出
@@ -36,15 +36,14 @@ public class SogouAnalysisCounter {
     @SuppressWarnings("deprecation")
     public static void run(String inputPath, String outputPath) throws Exception {
 
+        // helper封装基本操作
         SogouAnalysisHelper helper = SogouAnalysisHelper.getInstance();
-
-        FileSystem fs = helper.getHdfs();
 
         // Job封装本次MapReduce相关信息
         Job job = new Job(helper.getConfiguration(), MY_JOB_NAME);
 
         // 指定本次MR任务jar包运行主类
-        job.setJarByClass(SogouAnalysisCounter.class);
+        job.setJarByClass(SogouUrlCounter.class);
 
         // 指定本次MR的Mapper Combiner和Reducer
         job.setMapperClass(LineParserMapper.class);
@@ -67,13 +66,11 @@ public class SogouAnalysisCounter {
         FileOutputFormat.setOutputPath(job, out);
 
         // 删除上次运行结果（若有） 以保证本次结果正常输出
-        if (fs.exists(out)) {
-            fs.delete(out, true);
-        }
+        helper.deleteFileIfExists(TEMP_PATH);
 
-        if (job.waitForCompletion(true)) {
+        if (job.waitForCompletion(false)) {
             System.out.println("Count complete, now sort");
-            SogouAnalysisSorter.run(TEMP_FILE_PATH, outputPath);
+            SogouUrlSorter.run(TEMP_FILE_PATH, outputPath);
         }
     }
 
@@ -100,7 +97,7 @@ public class SogouAnalysisCounter {
         protected void map(Object key, Text value, Context context)
                 throws IOException, InterruptedException {
             String[] words = value.toString().split("\t");
-            String keyWord = words[2] == null ? "" : words[2].trim();
+            String keyWord = words[5] == null ? "" : words[5].trim();
             context.write(new Text(keyWord), new LongWritable(1));
         }
     }
