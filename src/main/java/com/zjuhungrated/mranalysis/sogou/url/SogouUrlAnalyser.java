@@ -7,7 +7,7 @@ public class SogouUrlAnalyser {
 
     private static final String MY_JOB_ROOT = "hdfs://localhost:9000";
     private static final String INPUT_PATH = String.valueOf(MY_JOB_ROOT
-            + "/sogouanalysis/input/sogou.full.utf8");
+            + "/sogouanalysis/input/sogou.full.utf8.ext");
     private static final String OUTPUT_PATH = String.valueOf(MY_JOB_ROOT
             + "/sogouanalysis/output2/");
 
